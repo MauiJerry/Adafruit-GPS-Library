@@ -167,16 +167,16 @@ char Adafruit_GPS::read(void) {
   if (paused)
     return c;
 
-	if (gpsSwSerial){
+   if (gpsSwSerial){
 		if (gpsSwSerial->available()) {
 			c = gpsSwSerial->read();
 		}
-	} else if (gpsHwSerial){
+   } else if (gpsHwSerial){
 		if (gpsHwSerial->available()) {
 			c = gpsHwSerial->read();
 		}
-	}
-	if (!c) return c;
+   }
+   if (!c) return c;
 
     //Serial.print(c);
 
@@ -206,7 +206,7 @@ char Adafruit_GPS::read(void) {
     currentline[lineidx++] = c;
     if (lineidx >= MAXLINELENGTH)
       lineidx = MAXLINELENGTH-1;
-  }
+
   return c;
 }
 
