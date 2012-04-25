@@ -15,6 +15,9 @@ products from Adafruit!
 Written by Limor Fried/Ladyada  for Adafruit Industries.  
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
+ 
+Mods by J.Isdale (MauiJerry) to support HardwareSerial
+ also testing with GPSBee
 ****************************************/
 
 #ifndef _ADAFRUIT_GPS_H
@@ -73,7 +76,7 @@ class Adafruit_GPS {
   void sendCommand(char *);
   void pause(boolean b);
 
-  boolean parseNMEA(char *response);
+  boolean parseNMEA(char *response); // not implemented ?? dup of parse()?
   uint8_t parseHex(char c);
 
   char read(void);
@@ -97,7 +100,7 @@ class Adafruit_GPS {
  private:
   boolean paused;
   
-  uint8_t parseResponse(char *response);
+  uint8_t parseResponse(char *response); // not found in implementation
 #if ARDUINO >= 100
   SoftwareSerial *gpsSwSerial;
 #else

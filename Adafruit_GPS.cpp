@@ -8,6 +8,8 @@ products from Adafruit!
 Written by Limor Fried/Ladyada  for Adafruit Industries.  
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
+ 
+Mods by J.Isdale (MauiJerry) to support HardwareSerial
 ****************************************/
 
 #include <Adafruit_GPS.h>
@@ -26,6 +28,7 @@ volatile char *lastline;
 volatile boolean recvdflag;
 
 
+// might be migrating this to parseNEMA
 boolean Adafruit_GPS::parse(char *nmea) {
   // do checksum check
 
@@ -164,9 +167,16 @@ char Adafruit_GPS::read(void) {
   if (paused)
     return c;
 
-
-  if (gpsSwSerial->available()) {
-    c = gpsSwSerial->read();
+	if (gpsSwSerial){
+		if (gpsSwSerial->available()) {
+			c = gpsSwSerial->read();
+		}
+	} else if (gpsHwSerial){
+		if (gpsHwSerial->available()) {
+			c = gpsHwSerial->read();
+		}
+	}
+	if (!c) return c;
 
     //Serial.print(c);
 
@@ -225,20 +235,46 @@ Adafruit_GPS::Adafruit_GPS(SoftwareSerial *ser)
 }
 
 
-void Adafruit_GPS::begin(uint16_t baud) 
+// added by isdale@gmail.com 4.5.12
+Adafruit_GPS::Adafruit_GPS(HardwareSerial *ser) 
 {
-  gpsSwSerial->begin(baud);
+	common_init();  // Set everything to common state, then...
+	gpsHwSerial = ser; // ...override hwSerial with value passed.	
 }
 
 // Initialization code used by all constructor types
 void Adafruit_GPS::common_init(void) {
   gpsSwSerial  = NULL;
   gpsHwSerial  = NULL;
+	
+	// set other values for defaults
+	recvdflag = false;
+	paused = false;
+	lineidx = 0;
+	currentline = line1;
+	lastline = line2;
+	
+	hour = minute = seconds = year = month = day = milliseconds = 0;
+	latitude = longitude = geoidheight = altitude = 0;
+	speed = angle = magvariation = HDOP = 0;
+	lat = lon = mag = 0;
+	fix = false;
+	fixquality = satellites = 0;
 }
 
+void Adafruit_GPS::begin(uint16_t baud) 
+{
+	if (gpsSwSerial)
+		gpsSwSerial->begin(baud);
+	else if (gpsHwSerial)
+		gpsHwSerial->begin(baud);
+}
 
 void Adafruit_GPS::sendCommand(char *str) {
-  gpsSwSerial->println(str);
+	if (gpsSwSerial)
+		gpsSwSerial->println(str);
+	else if (gpsHwSerial)
+		gpsHwSerial->println(str);
 }
 
 
